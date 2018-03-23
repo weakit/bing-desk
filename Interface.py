@@ -30,6 +30,16 @@ def connected(host="8.8.8.8", port=53):
     return False
 
 
+def restart():
+    en = os.environ.get('DESKTOP_SESSION')
+    if en == 'pantheon':
+        subprocess.Popen('gala --replace & disown', shell=True)
+    if en == 'gnome':
+        subprocess.Popen('gnome-shell --replace & disown', shell=True)
+    if en == 'unity':
+        subprocess.Popen('unity', shell=True)
+
+
 def wall(img):
     if platform == 'win':
         SPI_SETDESKWALLPAPER = 20
@@ -38,6 +48,8 @@ def wall(img):
         subprocess.Popen(
             "DISPLAY=:0 GSETTINGS_BACKEND=dconf /usr/bin/gsettings set org.gnome.desktop.background picture-uri file://{0}"
             .format(img), shell=True)
+        restart()
+
 
 
 if __name__ == '__main__':
