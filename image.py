@@ -1,9 +1,7 @@
 from xml.dom import minidom
-from PIL import Image, ImageFilter
+from PIL import Image
 import io
-import os
 import urllib3
-import locale
 
 base_URL = 'http://www.bing.com/HPImageArchive.aspx?format=xml&idx=0&n=1'
 prefix_URL = '&mkt=en-IN'

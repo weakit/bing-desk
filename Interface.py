@@ -1,12 +1,13 @@
 import socket
 import sys
 import os
-from PIL import Image
+from PIL import Image, ImageFilter
 import time
 from datetime import datetime
 from dateutil.parser import parse
 import image
 
+desperate = False
 path = os.path.realpath('image.png')
 
 if sys.platform.startswith('win'):
@@ -14,13 +15,14 @@ if sys.platform.startswith('win'):
     from PIL import ImageFilter
     platform = 'win'
 elif sys.platform.startswith('linux'):
-     platform = 'linux'
-     import subprocess
+    platform = 'linux'
+    import subprocess
 else:
     exit(2)
 
 
 def connected(host="8.8.8.8", port=53):
+    # check dat net
     try:
         socket.setdefaulttimeout(1)
         socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
@@ -31,25 +33,24 @@ def connected(host="8.8.8.8", port=53):
 
 
 def restart():
-    en = os.environ.get('DESKTOP_SESSION')
-    if en == 'pantheon':
-        subprocess.Popen('gala --replace & disown', shell=True)
-    if en == 'gnome':
-        subprocess.Popen('gnome-shell --replace & disown', shell=True)
-    if en == 'unity':
-        subprocess.Popen('unity', shell=True)
+    if desperate:
+        en = os.environ.get('DESKTOP_SESSION')
+        if en == 'pantheon':
+            subprocess.Popen('gala --replace & disown', shell=True)
+        if en == 'gnome':
+            subprocess.Popen('gnome-shell --replace & disown', shell=True)
+        if en == 'unity':
+            subprocess.Popen('unity', shell=True)
 
 
 def wall(img):
     if platform == 'win':
-        SPI_SETDESKWALLPAPER = 20
-        ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, img, 3)
+        ctypes.windll.user32.SystemParametersInfoW(20, 0, img, 3)
     elif platform == 'linux':
         subprocess.Popen(
             "DISPLAY=:0 GSETTINGS_BACKEND=dconf /usr/bin/gsettings set org.gnome.desktop.background picture-uri file://{0}"
             .format(img), shell=True)
         restart()
-
 
 
 if __name__ == '__main__':
@@ -65,6 +66,7 @@ if __name__ == '__main__':
             diff = update - last
             if diff.total_seconds() > 0:
                 if platform == 'win':
+                        # linux spoiled me
                         tmp_img = Image.open(path).filter(ImageFilter.GaussianBlur(radius=5))
                         tmp_img.save(path)
                         wall(path)
